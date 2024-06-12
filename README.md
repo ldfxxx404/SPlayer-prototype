@@ -11,7 +11,7 @@ P.S. Functionality will be extended, and the player itself will get a graphical 
 **Screenshots**
 
 - Preview
-[[Git/SPlayer/screenshots/example.png]]
+![[Git/SPlayer/screenshots/example.png]]
 
 - System resource usage
-[[Git/SPlayer/screenshots/system_resource_usage.png]]
+![[Git/SPlayer/screenshots/system_resource_usage.png]]
