@@ -120,12 +120,12 @@ int main(int argc, char *argv[])
         }
         case '=':
         {
-            libvlc_audio_set_volume(mediaPlayer, libvlc_audio_get_volume(mediaPlayer) + 10);
+            libvlc_audio_set_volume(mediaPlayer, libvlc_audio_get_volume(mediaPlayer) + 5);
             break;
         }
         case '-':
         {
-            libvlc_audio_set_volume(mediaPlayer, libvlc_audio_get_volume(mediaPlayer) - 10);
+            libvlc_audio_set_volume(mediaPlayer, libvlc_audio_get_volume(mediaPlayer) - 5);
             break;
         }
         case 'C': /*right arrow key*/
