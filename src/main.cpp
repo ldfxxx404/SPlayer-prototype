@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     libvlc_media_player_set_xwindow(mediaPlayer, win);
 
     /*Set titile*/
-    XStoreName(display, win, "SiMPlayer");
+    XStoreName(display, win, "SPlayer");
     XMapWindow(display, win);
     XFlush(display);
 
