@@ -10,6 +10,6 @@ P.S. Functionality will be extended, and the player itself will get a graphical 
 
 **Screenshots**
 
-![Preview](ldfxxx404/SPlayer/example.png)
+![Preview](screenshots/example.png)
 
-![System resource usage](ldfxxx404/SPlayer/system_resource_usage.png)
+![System resource usage](screenshots/system_resource_usage.png)
