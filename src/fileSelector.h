@@ -7,6 +7,7 @@ std::vector<std::string> browseFiles(const std::string &path)
     std::vector<std::string> files;
     DIR *dir;
     struct dirent *ent;
+    
     if ((dir = opendir(path.c_str())) != NULL)
     {
         while ((ent = readdir(dir)) != NULL)
