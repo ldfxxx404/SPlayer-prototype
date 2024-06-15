@@ -2,12 +2,22 @@
 #include "control.h"
 #include <vlc/vlc.h>
 #include <X11/Xlib.h>
-#include "navigation.h"
+#include "fileSelector.h"
+#include <CLI_menu.h>
+
 
 int main(int argc, char *argv[])
 {
 
     setNonCanonicalMode(true);
+
+    std::string filePath = selectFile(".");
+    if (filePath.empty())
+    {
+        std::cerr << "Nothing to select" << std::endl;
+        return -1;
+    }
+    
 
     /*Init libVLC*/
     libvlc_instance_t *initPlayer;
@@ -29,7 +39,7 @@ int main(int argc, char *argv[])
     }
 
     /*Set playable media path*/
-    playableMedia = libvlc_media_new_path(initPlayer, argv[1]);
+    playableMedia = libvlc_media_new_path(initPlayer, filePath.c_str());
 
     if (!playableMedia)
     {
@@ -141,12 +151,6 @@ int main(int argc, char *argv[])
         case 'D': /*left arrow key*/
         {
             libvlc_media_player_set_rate(mediaPlayer, currentSpeed);
-            break;
-        }
-
-        case 'd':
-        {
-            dirList();
             break;
         }
 
