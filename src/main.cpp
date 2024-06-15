@@ -2,6 +2,7 @@
 #include "control.h"
 #include <vlc/vlc.h>
 #include <X11/Xlib.h>
+#include "navigation.h"
 
 int main(int argc, char *argv[])
 {
@@ -118,32 +119,44 @@ int main(int argc, char *argv[])
             libvlc_audio_set_mute(mediaPlayer, !muted);
             break;
         }
+
         case '=':
         {
             libvlc_audio_set_volume(mediaPlayer, libvlc_audio_get_volume(mediaPlayer) + 5);
             break;
         }
+
         case '-':
         {
             libvlc_audio_set_volume(mediaPlayer, libvlc_audio_get_volume(mediaPlayer) - 5);
             break;
         }
+
         case 'C': /*right arrow key*/
         {
             libvlc_media_player_set_rate(mediaPlayer, currentSpeed + 1.5);
             break;
         }
+
         case 'D': /*left arrow key*/
         {
             libvlc_media_player_set_rate(mediaPlayer, currentSpeed);
             break;
         }
+
+        case 'd':
+        {
+            dirList();
+            break;
+        }
+
         case 'q':
         {
             std::cout << "Exiting..." << std::endl;
             goto quit;
             break;
         }
+
         }
     }
 
