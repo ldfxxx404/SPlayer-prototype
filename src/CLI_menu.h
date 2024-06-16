@@ -1,17 +1,49 @@
 #include <vector>
 #include <iostream>
 #include <ncurses.h>
-#include "fileSelector.h"
+#include <dirent.h>
 
-
-std::string selectFile(const std::string &path)
+std::vector<std::string> getFiles(const std::string &path)
 {
+    std::vector<std::string> files;
+    DIR *dir;
+    struct dirent *ent;
+    
+    if ((dir = opendir(path.c_str())) != NULL)
+    {
+        while ((ent = readdir(dir)) != NULL)
+        {
+            if (ent -> d_type == DT_REG)
+            {
+                files.push_back(ent -> d_name);
+            }
+            
+        }
+        closedir(dir);
+    }
+    else
+    {
+        perror("Failed to open directory");
+    }
+
+    return files;
+}
+
+std::string browseFile(const std::string &path){
+
     initscr();
     noecho();
     cbreak();
     keypad(stdscr, TRUE);
 
-    std::vector<std::string> files = browseFiles(path);
+   std::vector<std::string> files = getFiles(path);
+
+   if (files.empty())
+   {
+    endwin();
+    return "";
+   }
+   
 
     int highlight = 0;
     int choice;
@@ -19,6 +51,8 @@ std::string selectFile(const std::string &path)
 
     while (1)
     {
+        clear();
+
         for (int i = 0; i < n_choices; ++i)
         {
             if (i == highlight)
@@ -28,10 +62,16 @@ std::string selectFile(const std::string &path)
                 attroff(A_REVERSE);
             }
 
-            choice = getch();
-
-            switch (choice)
+            else
             {
+                mvprintw(i, 0, "%s", files[i].c_str());   
+            }
+        }
+    
+      choice = getch();
+
+        switch (choice)
+        {
             case KEY_UP:
                 if (highlight > 0)
                 {
@@ -46,15 +86,15 @@ std::string selectFile(const std::string &path)
                 }
                 break;
             
-            case 10: 
+            case 10:
+                endwin();
                 return files[highlight];
             
             default:
                 break;
-            }
-            
         }
-        endwin();
-        return "";
     }
+
+    endwin();
+    return "";
 }
