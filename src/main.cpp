@@ -3,8 +3,6 @@
 #include <vlc/vlc.h>
 #include <X11/Xlib.h>
 #include "CLI_menu.h"
-#include <string>
-
 
 int main(int argc, char *argv[])
 {
