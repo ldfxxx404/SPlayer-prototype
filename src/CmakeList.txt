@@ -1,0 +1,4 @@
+cmake_minimum_required(VERSION 3.10)
+project(SimplePlayer)
+set(SOURCES main.cpp)
+add_executable(SimplePlayer ${SOURCES})
