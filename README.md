@@ -14,7 +14,7 @@ P.S. Functionality will be extended, and the player itself will get a ~~graphica
 
 ![System resource usage](screenshots/system_resource_usage.png)
 
-##How to use
+## How to use
 
 ```bash
 $ git clone <repos>
