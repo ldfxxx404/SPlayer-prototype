@@ -9,13 +9,13 @@ int main(int argc, char *argv[])
 
     setNonCanonicalMode(true);
 
-  std::string selectedFile = browseFile(".");
-  if (selectedFile.empty())
-  {
-      std::cerr << "Nothing to select" << std::endl;
-      return -1;
-  }
-
+    std::string selectedFile = browseFile("."); /*Ncurses display files in . directory*/
+    if (selectedFile.empty())
+    {
+        std::cerr << "Nothing to select" << std::endl;
+        return -1;
+    }
+    
     /*Init libVLC*/
     libvlc_instance_t *initPlayer;
 
