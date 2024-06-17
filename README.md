@@ -1,65 +1,45 @@
-# SPlayer Documentation
+### Документация для консольного медиаплеера на Python с использованием Pyglet
 
-## Overview
+**Описание:**
+Этот проект представляет собой прототип консольного медиаплеера, разработанный на Python с использованием библиотеки Pyglet. Он позволяет воспроизводить аудио и видео файлы с возможностью управления воспроизведением через клавиатуру.
 
-SPlayer is a simple media player application written in C++ for Linux systems. It utilizes the libVLC library for media playback and X11 for displaying the video. The player allows users to browse and select a media file, control playback (play/pause, mute, volume adjustment), and modify playback speed.
+**Функциональность:**
+1. **Воспроизведение медиафайлов:**
+   - Поддерживает воспроизведение аудио и видео файлов.
+   - Файлы могут быть указаны в качестве аргумента командной строки при запуске программы.
 
-## Features
+2. **Управление воспроизведением:**
+   - `SPACE` - пауза/возобновление воспроизведения.
+   - `M` - отключение звука или включение звука.
+   - `=` и `-` - увеличение или уменьшение громкости.
+   - `RIGHT` и `LEFT` - увеличение или уменьшение скорости воспроизведения.
+   - `Q` - выход из программы.
 
-- Browse and select a media file for playback using a terminal-based file browser.
-- Control playback using keyboard shortcuts:
-  - `p`: Pause/resume playback.
-  - `m`: Mute/unmute audio.
-  - `=`: Increase volume.
-  - `-`: Decrease volume.
-  - `C`: Increase playback speed.
-  - `D`: Reset playback speed to normal.
-  - `q`: Quit the player.
+**Примечание:**
+Этот код представляет собой упрощенную версию полнофункционального медиаплеера, реализованного на C++ с использованием библиотеки libVLC и X11 для управления. Он служит прототипом для демонстрации базовых возможностей воспроизведения медиафайлов и управления воспроизведением через консольное взаимодействие.
 
-## Usage
+### Использование:
+Для запуска программы необходимо указать путь к медиафайлу в качестве аргумента командной строки:
 
-1. **Starting the Player:**
-   - Compile and run the SPlayer application.
-   ```bash
-   ./SPlayer
-   ```
-
-2. **File Selection:**
-   - Use the terminal-based file browser to navigate and select a media file from the current directory.
-
-3. **Playback Controls:**
-   - Use the following keyboard shortcuts to control playback:
-     - `p`: Pause/resume playback.
-     - `m`: Mute/unmute audio.
-     - `=`: Increase volume.
-     - `-`: Decrease volume.
-     - `C`: Increase playback speed.
-     - `D`: Reset playback speed to normal.
-     - `q`: Quit the player.
-
-4. **Exiting:**
-   - Press `q` to quit the player and close the application.
-
-## Screenshots
-
-![Preview](screenshots/example.png)
-
-![System resource usage](screenshots/system_resource_usage.png)
-
-## Dependencies
-
-- **libVLC**: Library for media playback.
-- **X11**: Library for managing the display window on a Linux system.
-- **ncurses**: Library for terminal control (used for file browsing).
-
-## Compilation
-
-Ensure you have the necessary libraries installed:
 ```bash
-sudo apt-get install libvlc-dev libx11-dev libncurses5-dev
+python main.py <path_to_media_file>
 ```
 
-Compile the program:
+Примеры:
 ```bash
-g++ -o SPlayer main.cpp -lvlc -lX11 -lncurses
+python main.py /path/to/video.mp4
+python main.py /path/to/audio.mp3
 ```
+
+После запуска программы откроется окно с воспроизведением медиафайла. Используйте указанные клавиши для управления воспроизведением и настройки звука.
+
+### Зависимости:
+Для работы программы требуется установка библиотеки Pyglet. Установить ее можно с помощью pip:
+
+```bash
+pip install pyglet
+```
+
+Этот проект разработан как демонстрационный прототип и может быть расширен и доработан для интеграции дополнительных функций и улучшения пользовательского интерфейса.
+#### P.S
+    Илюха, сорян что намусорил питухоном, я хотел посмотреть получится ли это все вобще реализовать, у меня получилось)
