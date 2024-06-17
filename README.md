@@ -4,7 +4,7 @@
 2. Speed up playback (X2)
 3. Volume control
 
-P.S. Functionality will be extended, and the player itself will get a graphical interface.
+P.S. Functionality will be extended, and the player itself will get a ~~graphical~~ CLI interface.
 
 ---
 
