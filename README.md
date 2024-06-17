@@ -13,3 +13,14 @@ P.S. Functionality will be extended, and the player itself will get a ~~graphica
 ![Preview](screenshots/example.png)
 
 ![System resource usage](screenshots/system_resource_usage.png)
+
+##How to use
+
+```bash
+$ git clone <repos>
+$ cd repos
+$ mkdir bin 
+$ g++ main.cpp -o ../bin/SimplePlayer -lvlc -lX11 -lncurses -ltinfo
+$ cd bin 
+$ ./SimplePlayer
+```
