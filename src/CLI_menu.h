@@ -5,21 +5,22 @@
 
 std::vector<std::string> getFiles(const std::string &path)
 {
+
     std::vector<std::string> files;
-    DIR *dir;
-    struct dirent *ent;
+    DIR *currentDir;
+    struct dirent *entry;
     
-    if ((dir = opendir(path.c_str())) != NULL)
+    if ((currentDir = opendir(path.c_str())) != NULL)
     {
-        while ((ent = readdir(dir)) != NULL)
+        while ((entry = readdir(currentDir)) != NULL)
         {
-            if (ent -> d_type == DT_REG)
+            if (entry -> d_type == DT_REG)
             {
-                files.push_back(ent -> d_name);
+               files.push_back(entry -> d_name);
             }
             
         }
-        closedir(dir);
+        closedir(currentDir);
     }
     else
     {
