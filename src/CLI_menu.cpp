@@ -33,6 +33,7 @@ std::string browseFile(const std::string &path) {
 
     if (files.empty()) {
         endwin();
+        std::cerr << "No files found in the directory." << std::endl;
         return "";
     }
 
@@ -55,12 +56,16 @@ std::string browseFile(const std::string &path) {
         choice = getch();
         switch (choice) {
             case KEY_UP:
-                if (highlight > 0) --highlight;
+                if (highlight > 0) {
+                    --highlight;
+                }
                 break;
             case KEY_DOWN:
-                if (highlight < n_choices - 1) ++highlight;
+                if (highlight < n_choices - 1) {
+                    ++highlight;
+                }
                 break;
-            case 10:
+            case 10: // Enter key
                 endwin();
                 return files[highlight];
             default:
