@@ -1,17 +1,6 @@
-#include "control.h"
-#include <termios.h>
-#include <unistd.h>
+#ifndef CONTROL_H
+#define CONTROL_H
 
-void setNonCanonicalMode(bool enable) {
-    struct termios ttystate;
-    tcgetattr(STDIN_FILENO, &ttystate);
+void setNonCanonicalMode(bool enable);
 
-    if (enable) {
-        ttystate.c_lflag &= ~(ICANON | ECHO);
-        ttystate.c_cc[VMIN] = 1;
-    } else {
-        ttystate.c_lflag |= ICANON;
-    }
-
-    tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
-}
+#endif
