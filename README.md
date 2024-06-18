@@ -23,11 +23,18 @@ cd build
 cmake ..
 make
 ```
+# OR u can use install.sh script
+
+```sh
+cd <repos>
+./install.sh <path/to/bin> (folder with media)
+```
+## usage
 
 ```sh
 ./ConsoleMediaPlayer
 ```
-
+## 
 ```sh
-sudo dnf install gcc-c++ ncurses-devel vlc-devel xorg-x11-devel
+sudo apt-get install gcc-c++ ncurses-devel vlc-devel xorg-x11-devel
 ```
