@@ -13,3 +13,21 @@ P.S. Functionality will be extended, and the player itself will get a ~~graphica
 ![Preview](screenshots/example.png)
 
 ![System resource usage](screenshots/system_resource_usage.png)
+
+## building 
+
+```sh
+cd src/
+mkdir build
+cd build
+cmake ..
+make
+```
+
+```sh
+./ConsoleMediaPlayer
+```
+
+```sh
+sudo dnf install gcc-c++ ncurses-devel vlc-devel xorg-x11-devel
+```
