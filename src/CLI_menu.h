@@ -104,7 +104,8 @@ std::string browseFile(const std::string &initPath) /* Browse files in current d
                 if (position != std::string::npos)
                 {
                     currentPath = currentPath.substr(0, position);
-                    if (currentPath.empty()) {
+                    if (currentPath.empty())
+                    {
                         currentPath = "/";
                     }
                     files = getFiles(currentPath);
@@ -142,4 +143,4 @@ std::string browseFile(const std::string &initPath) /* Browse files in current d
     endwin();
     return "";
 }
-    /*End*/
+/*End*/

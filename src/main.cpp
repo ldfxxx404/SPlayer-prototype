@@ -11,7 +11,6 @@ int main(int argc, char *argv[])
 
     std::string startPath = mainDirectory;
     std::string selectedFile = browseFile(startPath); /*Ncurses display files in . directory*/
-   
 
     if (selectedFile.empty())
     {
