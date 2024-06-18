@@ -4,14 +4,14 @@
 #include <X11/Xlib.h>
 #include "CLI_menu.h"
 
-int main(int argc, char *argv[])
-{
-
+int main(int argc, char *argv[]){
+    
     setNonCanonicalMode(true);
 
     std::string selectedFile = browseFile("."); /*Ncurses display files in . directory*/
-    if (selectedFile.empty())
-    {
+    
+    if (selectedFile.empty()){
+
         std::cerr << "Nothing to select" << std::endl;
         return -1;
     }
@@ -28,8 +28,8 @@ int main(int argc, char *argv[])
     /*libvlc_instance_t *initPlayer;*/
     initPlayer = libvlc_new(0, nullptr);
 
-    if (!initPlayer)
-    {
+    if (!initPlayer){
+
         std::cerr << "Init failed! Retry" << std::endl;
 
         return -1;
@@ -38,8 +38,8 @@ int main(int argc, char *argv[])
     /*Set playable media path*/
     playableMedia = libvlc_media_new_path(initPlayer, selectedFile.c_str());
 
-    if (!playableMedia)
-    {
+    if (!playableMedia){
+
         std::cerr << "Please select file to open!" << std::endl;
 
         /*If error terminate media*/
@@ -50,8 +50,8 @@ int main(int argc, char *argv[])
 
     mediaPlayer = libvlc_media_player_new_from_media(playableMedia);
 
-    if (!playableMedia)
-    {
+    if (!playableMedia){
+
         std::cerr << "Failed to start player" << std::endl;
 
         libvlc_media_release(playableMedia);
@@ -62,14 +62,14 @@ int main(int argc, char *argv[])
 
     /*Init X11 window*/
     Display *display = XOpenDisplay(nullptr);
-    if (!display)
-    {
+    if (!display){
+
         std::cerr << "Failed to open X display." << std::endl;
         libvlc_media_player_release(mediaPlayer);
         libvlc_release(initPlayer);
         return -1;
     }
-
+        
     int screen = DefaultScreen(display);
     Window root = RootWindow(display, screen);
 
@@ -106,53 +106,51 @@ int main(int argc, char *argv[])
     char mediaControl;
     char currentSpeed = 1.0;
 
-    while (mediaPlayer)
-    {
-
+    while (mediaPlayer){
+        
         std::cin >> mediaControl;
 
-        switch (mediaControl)
-        {
+        switch (mediaControl){
+            
+        case 'p':{
 
-        case 'p':
-        {
             libvlc_media_player_pause(mediaPlayer);
             break;
         }
 
-        case 'm':
-        {
+        case 'm':{
+
             bool muted = libvlc_audio_get_mute(mediaPlayer);
             libvlc_audio_set_mute(mediaPlayer, !muted);
             break;
         }
 
-        case '=':
-        {
+        case '=':{
+
             libvlc_audio_set_volume(mediaPlayer, libvlc_audio_get_volume(mediaPlayer) + 5);
             break;
         }
 
-        case '-':
-        {
+        case '-':{
+
             libvlc_audio_set_volume(mediaPlayer, libvlc_audio_get_volume(mediaPlayer) - 5);
             break;
         }
 
-        case 'C': /*right arrow key*/
-        {
+        case 'C':{ /*right arrow key*/
+
             libvlc_media_player_set_rate(mediaPlayer, currentSpeed + 1.5);
             break;
         }
 
-        case 'D': /*left arrow key*/
-        {
+        case 'D':{ /*left arrow key*/
+        
             libvlc_media_player_set_rate(mediaPlayer, currentSpeed);
             break;
         }
 
-        case 'q':
-        {
+        case 'q':{
+
             std::cout << "Exiting..." << std::endl;
             goto quit;
             break;
