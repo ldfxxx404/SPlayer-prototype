@@ -1,6 +1,7 @@
 .vscode
-/bin
+/bin/
 /mp3/
 TODO.md
 
-/src/output
+**/build/
+**/output/
