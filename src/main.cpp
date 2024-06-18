@@ -8,7 +8,6 @@ void playMedia(libvlc_instance_t* initPlayer, const std::string& selectedFile);
 
 int main(int argc, char *argv[]) {
     setNonCanonicalMode(true);
-
     std::string selectedFile = browseFile(".");
 
     if (selectedFile.empty()) {
@@ -58,10 +57,10 @@ void playMedia(libvlc_instance_t* initPlayer, const std::string& selectedFile) {
     Colormap cMap = DefaultColormap(display, screen);
     XParseColor(display, cMap, "#a7ff83", &greenColor);
     XAllocColor(display, cMap, &greenColor);
-    XSetWindowAttributes windowAttributes;
-    windowAttributes.background_pixel = greenColor.pixel;
+    XSetWindowAttributes windowAtributes;
+    windowAtributes.background_pixel = greenColor.pixel;
     Window win = XCreateWindow(display, root, 10, 10, 650, 650, 1, DefaultDepth(display, screen),
-                               InputOutput, DefaultVisual(display, screen), CWBackPixel, &windowAttributes);
+                               InputOutput, DefaultVisual(display, screen), CWBackPixel, &windowAtributes);
 
     libvlc_media_player_set_xwindow(mediaPlayer, win);
     XStoreName(display, win, "SPlayer");
@@ -97,7 +96,6 @@ void playMedia(libvlc_instance_t* initPlayer, const std::string& selectedFile) {
             case 'C': currentSpeed += 1.5; libvlc_media_player_set_rate(mediaPlayer, currentSpeed); break;
             case 'D': currentSpeed -= 1.5; libvlc_media_player_set_rate(mediaPlayer, currentSpeed); break;
             case 'q': std::cout << "Exiting..." << std::endl; goto quit;
-            default: break;
         }
     }
 
