@@ -97,7 +97,7 @@ std::string browseFile(const std::string &initPath) /* Browse files in current d
             }
             break;
 
-        case 10: // Enter key
+        case 10: /* Enter key */
             if (selected == "...")
             {
                 size_t position = currentPath.find_last_of("/");
