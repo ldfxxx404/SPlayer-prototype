@@ -1,7 +1,3 @@
-Here is a detailed and structured documentation for the ConsoleMediaPlayer project. The documentation covers the functionality, installation steps, and usage instructions.
-
----
-
 # ConsoleMediaPlayer
 
 ConsoleMediaPlayer is a CLI-based media player that offers basic playback controls, speed control, and volume adjustment. The functionality is planned to be extended over time, with the addition of more features.
@@ -111,7 +107,3 @@ sudo apt-get install g++ libncurses-dev libvlc-dev libx11-dev
 ## Future Enhancements
 
 The ConsoleMediaPlayer is under active development, and more features are planned for future releases. Stay tuned for updates!
-
----
-
-This documentation provides a clear and structured guide for setting up and using the ConsoleMediaPlayer. The build instructions, usage guide, and feature list ensure that users can easily understand and leverage the functionality of the player.
