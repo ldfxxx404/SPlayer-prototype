@@ -8,7 +8,7 @@ void playMedia(libvlc_instance_t* initPlayer, const std::string& selectedFile);
 
 int main(int argc, char *argv[]) {
     setNonCanonicalMode(true);
-    std::string selectedFile = browseFile(".");
+    std::string selectedFile = browseFile("/home");
 
     if (selectedFile.empty()) {
         std::cerr << "Nothing to select" << std::endl;

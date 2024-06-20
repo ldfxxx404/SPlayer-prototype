@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-std::vector<std::string> getFiles(const std::string &path);
-std::string browseFile(const std::string &path);
+std::vector<std::pair<std::string, bool>> getFiles(const std::string &initPath);
+std::string browseFile(const std::string &initPath);
 
 #endif
