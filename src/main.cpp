@@ -63,7 +63,7 @@ void playMedia(libvlc_instance_t* initPlayer, const std::string& selectedFile) {
                                InputOutput, DefaultVisual(display, screen), CWBackPixel, &windowAtributes);
 
     libvlc_media_player_set_xwindow(mediaPlayer, win);
-    XStoreName(display, win, "SPlayer");
+    XStoreName(display, win, "CMP");
     XMapWindow(display, win);
     XFlush(display);
 
