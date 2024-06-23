@@ -5,18 +5,19 @@
 #include "control.h"
 #include "playback_time.h"
 
+
 void playMedia(libvlc_instance_t* initPlayer, const std::string& selectedFile) {
     libvlc_media_t *playableMedia = libvlc_media_new_path(initPlayer, selectedFile.c_str());
     if (!playableMedia) {
-        std::cerr << "Please select file to open!" << std::endl;
+        std::cerr << "Failed to create media object!" << std::endl;
         libvlc_release(initPlayer);
         return;
     }
 
     libvlc_media_player_t *mediaPlayer = libvlc_media_player_new_from_media(playableMedia);
+    libvlc_media_release(playableMedia);
     if (!mediaPlayer) {
-        std::cerr << "Failed to start player" << std::endl;
-        libvlc_media_release(playableMedia);
+        std::cerr << "Failed to create media player!" << std::endl;
         libvlc_release(initPlayer);
         return;
     }
@@ -31,8 +32,8 @@ void playMedia(libvlc_instance_t* initPlayer, const std::string& selectedFile) {
 
     int screen = DefaultScreen(display);
     Window root = RootWindow(display, screen);
-    Colormap cMap = DefaultColormap(display, screen);
     XColor greenColor;
+    Colormap cMap = DefaultColormap(display, screen);
 
     XParseColor(display, cMap, "#a7ff83", &greenColor);
     XAllocColor(display, cMap, &greenColor);
@@ -40,26 +41,26 @@ void playMedia(libvlc_instance_t* initPlayer, const std::string& selectedFile) {
     XSetWindowAttributes windowAttributes;
     windowAttributes.background_pixel = greenColor.pixel;
 
-    Window win = XCreateWindow(display, root, 10, 10, 650, 650, 1, DefaultDepth(display, screen),
-                               InputOutput, DefaultVisual(display, screen), CWBackPixel, &windowAttributes);
+    Window win = XCreateWindow(display, root, 10, 10, 650, 650, 1,
+                               DefaultDepth(display, screen), InputOutput,
+                               DefaultVisual(display, screen), CWBackPixel, &windowAttributes);
 
+    libvlc_media_player_set_xwindow(mediaPlayer, win);
     XStoreName(display, win, "CMP");
     XMapWindow(display, win);
     XFlush(display);
 
-    libvlc_media_player_set_xwindow(mediaPlayer, win);
+    //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-    libvlc_media_release(playableMedia);
     libvlc_media_player_play(mediaPlayer);
 
-    std::atomic<bool>run(true);
+    std::atomic<bool> run(true);
     std::thread updateThread(playbackTime, mediaPlayer, std::ref(run));
 
     std::cout << "\nMedia is playing..." << std::endl;
 
     char mediaControl;
     float currentSpeed = 1.0;
-
     while (mediaPlayer) {
         std::cin >> mediaControl;
         switch (mediaControl) {

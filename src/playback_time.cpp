@@ -20,8 +20,11 @@ void playbackTime(libvlc_media_player_t *mediaPlayer, std::atomic<bool> &run) {
         seconds %= 60;
         minutes %= 60;
 
-        displayCurrentTime(hours, minutes, seconds);
+        if (minutes < 60 && hours < 24) {
+            displayCurrentTime(hours, minutes, seconds);
+        }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }
+
