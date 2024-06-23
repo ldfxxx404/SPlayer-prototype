@@ -5,31 +5,6 @@
 #include "control.h"
 #include "playback_time.h"
 
-void playMedia(libvlc_instance_t* initPlayer, const std::string& selectedFile);
-
-
-
-int main(int argc, char *argv[]) {
-    setNonCanonicalMode(true);
-    std::string selectedFile = browseFile("/home");
-
-    if (selectedFile.empty()) {
-        std::cerr << "Nothing to select" << std::endl;
-        return -1;
-    }
-
-    libvlc_instance_t *initPlayer = libvlc_new(0, nullptr);
-    if (!initPlayer) {
-        std::cerr << "Init failed! Retry" << std::endl;
-        return -1;
-    }
-
-    playMedia(initPlayer, selectedFile);
-
-    setNonCanonicalMode(false);
-    return 0;
-}
-
 void playMedia(libvlc_instance_t* initPlayer, const std::string& selectedFile) {
     libvlc_media_t *playableMedia = libvlc_media_new_path(initPlayer, selectedFile.c_str());
     if (!playableMedia) {
@@ -56,19 +31,23 @@ void playMedia(libvlc_instance_t* initPlayer, const std::string& selectedFile) {
 
     int screen = DefaultScreen(display);
     Window root = RootWindow(display, screen);
-    XColor greenColor;
     Colormap cMap = DefaultColormap(display, screen);
+    XColor greenColor;
+
     XParseColor(display, cMap, "#a7ff83", &greenColor);
     XAllocColor(display, cMap, &greenColor);
-    XSetWindowAttributes windowAtributes;
-    windowAtributes.background_pixel = greenColor.pixel;
-    Window win = XCreateWindow(display, root, 10, 10, 650, 650, 1, DefaultDepth(display, screen),
-                               InputOutput, DefaultVisual(display, screen), CWBackPixel, &windowAtributes);
 
-    libvlc_media_player_set_xwindow(mediaPlayer, win);
+    XSetWindowAttributes windowAttributes;
+    windowAttributes.background_pixel = greenColor.pixel;
+
+    Window win = XCreateWindow(display, root, 10, 10, 650, 650, 1, DefaultDepth(display, screen),
+                               InputOutput, DefaultVisual(display, screen), CWBackPixel, &windowAttributes);
+
     XStoreName(display, win, "CMP");
     XMapWindow(display, win);
     XFlush(display);
+
+    libvlc_media_player_set_xwindow(mediaPlayer, win);
 
     libvlc_media_release(playableMedia);
     libvlc_media_player_play(mediaPlayer);
@@ -80,6 +59,7 @@ void playMedia(libvlc_instance_t* initPlayer, const std::string& selectedFile) {
 
     char mediaControl;
     float currentSpeed = 1.0;
+
     while (mediaPlayer) {
         std::cin >> mediaControl;
         switch (mediaControl) {
@@ -111,4 +91,26 @@ quit:
     libvlc_media_player_stop(mediaPlayer);
     libvlc_media_player_release(mediaPlayer);
     libvlc_release(initPlayer);
+}
+
+int main(int argc, char *argv[]) {
+    setNonCanonicalMode(true);
+    
+    std::string selectedFile = browseFile("/home");
+
+    if (selectedFile.empty()) {
+        std::cerr << "Nothing to select" << std::endl;
+        return -1;
+    }
+
+    libvlc_instance_t *initPlayer = libvlc_new(0, nullptr);
+    if (!initPlayer) {
+        std::cerr << "Init failed! Retry" << std::endl;
+        return -1;
+    }
+
+    playMedia(initPlayer, selectedFile);
+
+    setNonCanonicalMode(false);
+    return 0;
 }

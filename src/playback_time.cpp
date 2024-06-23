@@ -9,9 +9,13 @@ void playbackTime(libvlc_media_player_t *mediaPlayer, std::atomic<bool> &run)
 
         int seconds = current_time / 1000;
         int minutes = seconds / 60;
+        int hours = minutes / 60;
+
         seconds = seconds % 60;
+        minutes = minutes % 60;
 
         std::cout << "\rCurrent time: "
+                  << std::setw(2) << std::setfill('0') << hours << ":"
                   << std::setw(2) << std::setfill('0') << minutes << ":"
                   << std::setw(2) << std::setfill('0') << seconds
                   << std::flush;
