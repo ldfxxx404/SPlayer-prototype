@@ -24,7 +24,7 @@ void playbackTime(libvlc_media_player_t *mediaPlayer, std::atomic<bool> &run) {
             displayCurrentTime(hours, minutes, seconds);
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 

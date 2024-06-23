@@ -1,7 +1,7 @@
 #!/bin/bash
-path_to_binary=$1
+PATH_TO_BINATY=$1
 
-if [ -z "$path_to_binary" ]; then
+if [ -z "$PATH_TO_BINATY" ]; then
     echo "Введите путь до папки с медиа файлами"
 else 
     cd src  
@@ -10,6 +10,6 @@ else
     cmake ..
     make 
     chmod +x ConsoleMediaPlayer
-    cp ConsoleMediaPlayer "$path_to_binary"
+    cp ConsoleMediaPlayer "$PATH_TO_BINATY"
     rm -rf ConsoleMediaPlayer
 fi
