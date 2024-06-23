@@ -93,24 +93,48 @@ quit:
     libvlc_release(initPlayer);
 }
 
-int main(int argc, char *argv[]) {
+void initializeNonCanonicalMode() {
     setNonCanonicalMode(true);
-    
-    std::string selectedFile = browseFile("/home");
+}
 
+void finalizeNonCanonicalMode() {
+    setNonCanonicalMode(false);
+}
+
+std::string selectFile() {
+    std::string selectedFile = browseFile("/home");
     if (selectedFile.empty()) {
         std::cerr << "Nothing to select" << std::endl;
-        return -1;
     }
+    return selectedFile;
+}
 
+libvlc_instance_t* initializeVLC() {
     libvlc_instance_t *initPlayer = libvlc_new(0, nullptr);
     if (!initPlayer) {
         std::cerr << "Init failed! Retry" << std::endl;
-        return -1;
+    }
+    return initPlayer;
+}
+
+void runMediaPlayer(const std::string& selectedFile) {
+    libvlc_instance_t* initPlayer = initializeVLC();
+    if (!initPlayer) {
+        return;
     }
 
     playMedia(initPlayer, selectedFile);
+    libvlc_release(initPlayer);
+}
 
-    setNonCanonicalMode(false);
+int main(int argc, char *argv[]) {
+    initializeNonCanonicalMode();
+
+    std::string selectedFile = selectFile();
+    if (!selectedFile.empty()) {
+        runMediaPlayer(selectedFile);
+    }
+
+    finalizeNonCanonicalMode();
     return 0;
 }

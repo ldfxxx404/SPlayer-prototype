@@ -7,37 +7,72 @@
 
 std::vector<std::pair<std::string, bool>> getFiles(const std::string &initPath) {
     std::vector<std::pair<std::string, bool>> files;
-    DIR *dir;
-    struct dirent *ent;
+    DIR *dir = opendir(initPath.c_str());
 
-    if ((dir = opendir(initPath.c_str())) != NULL) {
-        files.push_back({"..", true});
-        while ((ent = readdir(dir)) != NULL) {
-            if (ent->d_name[0] == '.')
-                continue;
-
-            files.push_back({ent->d_name, ent->d_type == DT_DIR});
-        }
-        closedir(dir);
-    }
-    else {
+    if (dir == nullptr) {
         perror("Failed to open directory");
+        return files;
     }
 
+    files.push_back({"..", true});
+
+    struct dirent *ent;
+    while ((ent = readdir(dir)) != nullptr) {
+        if (ent->d_name[0] == '.')
+            continue;
+
+        files.push_back({ent->d_name, ent->d_type == DT_DIR});
+    }
+
+    closedir(dir);
     return files;
 }
 
-std::string browseFile(const std::string &initPath) {
+void initializeNcurses() {
     initscr();
     noecho();
     cbreak();
     keypad(stdscr, TRUE);
+}
+
+void finalizeNcurses() {
+    endwin();
+}
+
+void displayFiles(const std::string& currentPath, const std::vector<std::pair<std::string, bool>>& files, int highlight) {
+    clear();
+    mvprintw(0, 0, "Current directory: %s", currentPath.c_str());
+
+    for (size_t i = 0; i < files.size(); ++i) {
+        if (static_cast<int>(i) == highlight) {
+            attron(A_REVERSE);
+            mvprintw(i + 1, 0, "%s", files[i].first.c_str());
+            attroff(A_REVERSE);
+        } else {
+            mvprintw(i + 1, 0, "%s", files[i].first.c_str());
+        }
+    }
+}
+
+std::string handleDirectorySelection(const std::string& currentPath, const std::string& selectedDir) {
+    if (selectedDir == "..") {
+        size_t position = currentPath.find_last_of("/");
+        if (position != std::string::npos) {
+            return currentPath.substr(0, position);
+        }
+        return currentPath;
+    }
+    return currentPath + "/" + selectedDir;
+}
+
+std::string browseFile(const std::string &initPath) {
+    initializeNcurses();
 
     std::string currentPath = initPath;
     std::vector<std::pair<std::string, bool>> files = getFiles(currentPath);
 
     if (files.empty()) {
-        endwin();
+        finalizeNcurses();
         std::cerr << "No files found in the directory." << std::endl;
         return "";
     }
@@ -46,70 +81,40 @@ std::string browseFile(const std::string &initPath) {
     int choice;
     int n_choices = files.size();
 
-    while (1) {
-
-        clear();
-        mvprintw(0, 0, "Current directory: %s", currentPath.c_str());
-
-        for (int i = 0; i < n_choices; ++i) {
-            if (i == highlight) {
-                attron(A_REVERSE);
-                mvprintw(i + 1, 0, "%s", files[i].first.c_str());
-                attroff(A_REVERSE);
-            }
-            else {
-                mvprintw(i + 1, 0, "%s", files[i].first.c_str());
-            }
-        }
+    while (true) {
+        displayFiles(currentPath, files, highlight);
 
         choice = getch();
-
         switch (choice) {
-        case KEY_UP:
-            if (highlight > 0) {
-                --highlight;
-            }
-            break;
-        case KEY_DOWN:
-            if (highlight < n_choices - 1) {
-                ++highlight;
-            }
-            break;
-        case 10: // Enter key
-            if (files[highlight].second) {
-                if (files[highlight].first == "..")
-                {
-                    size_t position = currentPath.find_last_of("/");
-
-                    if (position != std::string::npos) {
-                        currentPath = currentPath.substr(0, position);
-                    }
-
+            case KEY_UP:
+                if (highlight > 0) {
+                    --highlight;
+                }
+                break;
+            case KEY_DOWN:
+                if (highlight < n_choices - 1) {
+                    ++highlight;
+                }
+                break;
+            case 10: 
+                if (files[highlight].second) { 
+                    currentPath = handleDirectorySelection(currentPath, files[highlight].first);
                     files = getFiles(currentPath);
                     highlight = 0;
                     n_choices = files.size();
+                } else {
+                    finalizeNcurses();
+                    return currentPath + "/" + files[highlight].first;
                 }
-                else if (files[highlight].first != ".") {
-                    currentPath += "/" + files[highlight].first;
-                    files = getFiles(currentPath);
-                    highlight = 0;
-                    n_choices = files.size();
-                }
-            }
-            else {
-                endwin();
-                return currentPath + "/" + files[highlight].first;
-            }
-            break;
-
-        case 'q':
-            endwin();
-            return "";
-        default:
-            break;
+                break;
+            case 'q':
+                finalizeNcurses();
+                return "";
+            default:
+                break;
         }
     }
 
-    endwin();
+    finalizeNcurses();
     return "";
 }
