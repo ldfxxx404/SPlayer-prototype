@@ -7,6 +7,6 @@
 #include <chrono>
 #include <atomic>
 
-    void playbackTime(libvlc_media_player_t * mediaPlayer, std::atomic<bool> & run);
+void playbackTime(libvlc_media_player_t *mediaPlayer, std::atomic<bool> &run);
 
 #endif // PLAYBACK_TIME_H
