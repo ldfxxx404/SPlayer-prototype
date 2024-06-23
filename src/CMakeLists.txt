@@ -19,7 +19,7 @@ include_directories(${X11_INCLUDE_DIR})
 include_directories(${CURSES_INCLUDE_DIR})
 
 # Установите исходные файлы проекта
-set(SOURCES main.cpp control.cpp CLI_menu.cpp)
+set(SOURCES main.cpp control.cpp CLI_menu.cpp playback_time.cpp)
 
 # Добавьте исполняемый файл
 add_executable(ConsoleMediaPlayer ${SOURCES})

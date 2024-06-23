@@ -1,10 +1,13 @@
 #include <iostream>
-#include "control.h"
 #include <vlc/vlc.h>
 #include <X11/Xlib.h>
 #include "CLI_menu.h"
+#include "control.h"
+#include "playback_time.h"
 
 void playMedia(libvlc_instance_t* initPlayer, const std::string& selectedFile);
+
+
 
 int main(int argc, char *argv[]) {
     setNonCanonicalMode(true);
@@ -70,6 +73,9 @@ void playMedia(libvlc_instance_t* initPlayer, const std::string& selectedFile) {
     libvlc_media_release(playableMedia);
     libvlc_media_player_play(mediaPlayer);
 
+    std::atomic<bool>run(true);
+    std::thread updateThread(playbackTime, mediaPlayer, std::ref(run));
+
     std::cout << "\nMedia is playing..." << std::endl;
 
     char mediaControl;
@@ -95,11 +101,13 @@ void playMedia(libvlc_instance_t* initPlayer, const std::string& selectedFile) {
             }
             case 'C': currentSpeed += 1.5; libvlc_media_player_set_rate(mediaPlayer, currentSpeed); break;
             case 'D': currentSpeed -= 1.5; libvlc_media_player_set_rate(mediaPlayer, currentSpeed); break;
-            case 'q': std::cout << "Exiting..." << std::endl; goto quit;
+            case 'q': std::cout << "\nExiting..." << std::endl; goto quit;
         }
     }
 
 quit:
+    run = false;
+    updateThread.join();
     libvlc_media_player_stop(mediaPlayer);
     libvlc_media_player_release(mediaPlayer);
     libvlc_release(initPlayer);
