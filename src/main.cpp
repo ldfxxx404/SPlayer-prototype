@@ -1,141 +1,247 @@
 #include <iostream>
 #include <vlc/vlc.h>
 #include <X11/Xlib.h>
+#include <atomic>
+#include <thread>
+#include <map>
+#include <functional>
 #include "CLI_menu.h"
 #include "control.h"
 #include "playback_time.h"
 
-
-void playMedia(libvlc_instance_t* initPlayer, const std::string& selectedFile) {
-    libvlc_media_t *playableMedia = libvlc_media_new_path(initPlayer, selectedFile.c_str());
-    if (!playableMedia) {
-        std::cerr << "Failed to create media object!" << std::endl;
-        libvlc_release(initPlayer);
-        return;
-    }
-
-    libvlc_media_player_t *mediaPlayer = libvlc_media_player_new_from_media(playableMedia);
-    libvlc_media_release(playableMedia);
-    if (!mediaPlayer) {
-        std::cerr << "Failed to create media player!" << std::endl;
-        libvlc_release(initPlayer);
-        return;
-    }
-
-    Display *display = XOpenDisplay(nullptr);
-    if (!display) {
-        std::cerr << "Failed to open X display." << std::endl;
-        libvlc_media_player_release(mediaPlayer);
-        libvlc_release(initPlayer);
-        return;
-    }
-
-    int screen = DefaultScreen(display);
-    Window root = RootWindow(display, screen);
-    XColor greenColor;
-    Colormap cMap = DefaultColormap(display, screen);
-
-    XParseColor(display, cMap, "#a7ff83", &greenColor);
-    XAllocColor(display, cMap, &greenColor);
-
-    XSetWindowAttributes windowAttributes;
-    windowAttributes.background_pixel = greenColor.pixel;
-
-    Window win = XCreateWindow(display, root, 10, 10, 650, 650, 1,
-                               DefaultDepth(display, screen), InputOutput,
-                               DefaultVisual(display, screen), CWBackPixel, &windowAttributes);
-
-    libvlc_media_player_set_xwindow(mediaPlayer, win);
-    XStoreName(display, win, "CMP");
-    XMapWindow(display, win);
-    XFlush(display);
-
-    //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-    libvlc_media_player_play(mediaPlayer);
-
-    std::atomic<bool> run(true);
-    std::thread updateThread(playbackTime, mediaPlayer, std::ref(run));
-
-    std::cout << "\nMedia is playing..." << std::endl;
-
-    char mediaControl;
-    float currentSpeed = 1.0;
-    while (mediaPlayer) {
-        std::cin >> mediaControl;
-        switch (mediaControl) {
-            case 'p': libvlc_media_player_pause(mediaPlayer); break;
-            case 'm': {
-                bool muted = libvlc_audio_get_mute(mediaPlayer);
-                libvlc_audio_set_mute(mediaPlayer, !muted);
-                break;
-            }
-            case '=': {
-                int currentVolume = libvlc_audio_get_volume(mediaPlayer);
-                libvlc_audio_set_volume(mediaPlayer, currentVolume + 5);
-                break;
-            }
-            case '-': {
-                int currentVolume = libvlc_audio_get_volume(mediaPlayer);
-                libvlc_audio_set_volume(mediaPlayer, currentVolume - 5);
-                break;
-            }
-            case 'C': currentSpeed += 1.5; libvlc_media_player_set_rate(mediaPlayer, currentSpeed); break;
-            case 'D': currentSpeed -= 1.5; libvlc_media_player_set_rate(mediaPlayer, currentSpeed); break;
-            case 'q': std::cout << "\nExiting..." << std::endl; goto quit;
+// Класс для управления экземпляром VLC
+class VLCInstance {
+public:
+    VLCInstance() {
+        instance_ = libvlc_new(0, nullptr);
+        if (!instance_) {
+            std::cerr << "Failed to initialize VLC instance" << std::endl;
+            exit(EXIT_FAILURE);
         }
     }
 
-quit:
-    run = false;
-    updateThread.join();
-    libvlc_media_player_stop(mediaPlayer);
-    libvlc_media_player_release(mediaPlayer);
-    libvlc_release(initPlayer);
-}
-
-void initializeNonCanonicalMode() {
-    setNonCanonicalMode(true);
-}
-
-void finalizeNonCanonicalMode() {
-    setNonCanonicalMode(false);
-}
-
-std::string selectFile() {
-    std::string selectedFile = browseFile("/home");
-    if (selectedFile.empty()) {
-        std::cerr << "Nothing to select" << std::endl;
-    }
-    return selectedFile;
-}
-
-libvlc_instance_t* initializeVLC() {
-    libvlc_instance_t *initPlayer = libvlc_new(0, nullptr);
-    if (!initPlayer) {
-        std::cerr << "Init failed! Retry" << std::endl;
-    }
-    return initPlayer;
-}
-
-void runMediaPlayer(const std::string& selectedFile) {
-    libvlc_instance_t* initPlayer = initializeVLC();
-    if (!initPlayer) {
-        return;
+    ~VLCInstance() {
+        if (instance_) {
+            libvlc_release(instance_);
+        }
     }
 
-    playMedia(initPlayer, selectedFile);
-    libvlc_release(initPlayer);
-}
+    libvlc_instance_t* getInstance() const {
+        return instance_;
+    }
 
+private:
+    libvlc_instance_t* instance_;
+};
+
+// Класс для управления X11 окном
+class X11Window {
+public:
+    X11Window(libvlc_media_player_t* mediaPlayer) : display_(nullptr), window_(0) {
+        initialize(mediaPlayer);
+    }
+
+    ~X11Window() {
+        if (display_) {
+            XCloseDisplay(display_);
+        }
+    }
+
+private:
+    void initialize(libvlc_media_player_t* mediaPlayer) {
+        display_ = XOpenDisplay(nullptr);
+        if (!display_) {
+            std::cerr << "Failed to open X display." << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+        int screenNumber = DefaultScreen(display_);
+        Window rootWindow = RootWindow(display_, screenNumber);
+        XColor windowBackgroundColor;
+        Colormap colormap = DefaultColormap(display_, screenNumber);
+
+        XParseColor(display_, colormap, "#a7ff83", &windowBackgroundColor);
+        XAllocColor(display_, colormap, &windowBackgroundColor);
+
+        XSetWindowAttributes windowAttributes;
+        windowAttributes.background_pixel = windowBackgroundColor.pixel;
+
+        window_ = XCreateWindow(display_, rootWindow, 10, 10, 650, 650, 1,
+                                DefaultDepth(display_, screenNumber), InputOutput,
+                                DefaultVisual(display_, screenNumber), CWBackPixel, &windowAttributes);
+
+        libvlc_media_player_set_xwindow(mediaPlayer, window_);
+        XStoreName(display_, window_, "CMP");
+        XMapWindow(display_, window_);
+        XFlush(display_);
+    }
+
+    Display* display_;
+    Window window_;
+};
+
+// Класс для управления медиа-плеером
+class MediaPlayer {
+public:
+    MediaPlayer(libvlc_instance_t* vlcInstance, const std::string& mediaFilePath)
+        : mediaPlayer_(nullptr), playbackSpeed_(1.0) {
+        initialize(vlcInstance, mediaFilePath);
+        x11Window_ = std::make_unique<X11Window>(mediaPlayer_);
+    }
+
+    ~MediaPlayer() {
+        if (playbackTimeThread_.joinable()) {
+            playbackTimeThread_.join();
+        }
+        if (mediaPlayer_) {
+            libvlc_media_player_stop(mediaPlayer_);
+            libvlc_media_player_release(mediaPlayer_);
+        }
+    }
+
+    void startPlayback() {
+        libvlc_media_player_play(mediaPlayer_);
+        playbackTimeThread_ = std::thread(playbackTime, mediaPlayer_, std::ref(isRunning_));
+    }
+
+    void pauseOrResume() {
+        libvlc_media_player_pause(mediaPlayer_);
+    }
+
+    void muteOrUnmute() {
+        bool isMuted = libvlc_audio_get_mute(mediaPlayer_);
+        libvlc_audio_set_mute(mediaPlayer_, !isMuted);
+    }
+
+    void increaseVolume() {
+        int currentVolume = libvlc_audio_get_volume(mediaPlayer_);
+        libvlc_audio_set_volume(mediaPlayer_, currentVolume + 5);
+    }
+
+    void decreaseVolume() {
+        int currentVolume = libvlc_audio_get_volume(mediaPlayer_);
+        libvlc_audio_set_volume(mediaPlayer_, currentVolume - 5);
+    }
+
+    void increaseSpeed() {
+        playbackSpeed_ += 1.5;
+        libvlc_media_player_set_rate(mediaPlayer_, playbackSpeed_);
+    }
+
+    void decreaseSpeed() {
+        playbackSpeed_ -= 1.5;
+        libvlc_media_player_set_rate(mediaPlayer_, playbackSpeed_);
+    }
+
+    bool isRunning() const {
+        return isRunning_;
+    }
+
+    void stop() {
+        isRunning_ = false;
+    }
+
+private:
+    void initialize(libvlc_instance_t* vlcInstance, const std::string& mediaFilePath) {
+        libvlc_media_t* media = libvlc_media_new_path(vlcInstance, mediaFilePath.c_str());
+        if (!media) {
+            std::cerr << "Failed to create media object!" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+        mediaPlayer_ = libvlc_media_player_new_from_media(media);
+        libvlc_media_release(media);
+        if (!mediaPlayer_) {
+            std::cerr << "Failed to create media player!" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    libvlc_media_player_t* mediaPlayer_;
+    std::unique_ptr<X11Window> x11Window_;
+    std::atomic<bool> isRunning_{true};
+    std::thread playbackTimeThread_;
+    float playbackSpeed_;
+};
+
+// Класс для обработки ввода пользователя
+class UserInputHandler {
+public:
+    UserInputHandler(MediaPlayer& mediaPlayer) : mediaPlayer_(mediaPlayer) {
+        userCommandMap_ = {
+            {'p', [&mediaPlayer]() { mediaPlayer.pauseOrResume(); }},
+            {'m', [&mediaPlayer]() { mediaPlayer.muteOrUnmute(); }},
+            {'=', [&mediaPlayer]() { mediaPlayer.increaseVolume(); }},
+            {'-', [&mediaPlayer]() { mediaPlayer.decreaseVolume(); }},
+            {'C', [&mediaPlayer]() { mediaPlayer.increaseSpeed(); }},
+            {'D', [&mediaPlayer]() { mediaPlayer.decreaseSpeed(); }},
+            {'q', [&mediaPlayer]() { mediaPlayer.stop(); }}
+        };
+    }
+
+    void processUserInput() {
+        char userCommand;
+        std::cout << "\nMedia is playing..." << std::endl;
+        while (mediaPlayer_.isRunning()) {
+            std::cin >> userCommand;
+            handleUserCommand(userCommand);
+            if (userCommand == 'q') {
+                std::cout << "\nExiting..." << std::endl;
+                break;
+            }
+        }
+    }
+
+private:
+    void handleUserCommand(char userCommand) {
+        auto commandHandler = userCommandMap_.find(userCommand);
+        if (commandHandler != userCommandMap_.end()) {
+            commandHandler->second();
+        }
+    }
+
+    MediaPlayer& mediaPlayer_;
+    std::map<char, std::function<void()>> userCommandMap_;
+};
+
+// Класс для управления неконаноническим режимом терминала
+class NonCanonicalMode {
+public:
+    static void enable() {
+        setNonCanonicalMode(true);
+    }
+
+    static void disable() {
+        setNonCanonicalMode(false);
+    }
+};
+
+// Класс для выбора медиа-файла
+class FileBrowser {
+public:
+    static std::string browse() {
+        std::string mediaFilePath = browseFile("/home");
+        if (mediaFilePath.empty()) {
+            std::cerr << "No file selected" << std::endl;
+        }
+        return mediaFilePath;
+    }
+};
+
+// Основная функция программы
 int main(int argc, char *argv[]) {
-    initializeNonCanonicalMode();
+    NonCanonicalMode::enable();
 
-    std::string selectedFile = selectFile();
-    if (!selectedFile.empty()) {
-        runMediaPlayer(selectedFile);
+    std::string mediaFilePath = FileBrowser::browse();
+    if (!mediaFilePath.empty()) {
+        VLCInstance vlcInstance;
+        MediaPlayer mediaPlayer(vlcInstance.getInstance(), mediaFilePath);
+        UserInputHandler userInputHandler(mediaPlayer);
+
+        mediaPlayer.startPlayback();
+        userInputHandler.processUserInput();
     }
 
-    finalizeNonCanonicalMode();
+    NonCanonicalMode::disable();
     return 0;
 }
