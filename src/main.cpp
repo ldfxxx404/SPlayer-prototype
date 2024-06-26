@@ -9,7 +9,6 @@
 #include "control.h"
 #include "playback_time.h"
 
-// Класс для управления экземпляром VLC
 class VLCInstance {
 
 public:
@@ -24,36 +23,29 @@ public:
     }
 
     ~VLCInstance() {
-
         if (instance_) {
             libvlc_release(instance_);
         }
     }
 
     libvlc_instance_t* getInstance() const {
-
         return instance_;
     }
 
 private:
-
     libvlc_instance_t* instance_;
 };
 
-// Класс для управления X11 окном
 class X11Window {
 
 public:
 
     X11Window(libvlc_media_player_t* mediaPlayer) : display_(nullptr), window_(0) {
-
         initialize(mediaPlayer);
     }
 
     ~X11Window() {
-
         if (display_) {
-
             XCloseDisplay(display_);
         }
     }
@@ -61,11 +53,9 @@ public:
 private:
 
     void initialize(libvlc_media_player_t* mediaPlayer) {
-
         display_ = XOpenDisplay(nullptr);
 
         if (!display_) {
-
             std::cerr << "Failed to open X display." << std::endl;
             exit(EXIT_FAILURE);
         }
@@ -95,79 +85,71 @@ private:
     Window window_;
 };
 
-// Класс для управления медиа-плеером
 class MediaPlayer {
 
 public:
 
     MediaPlayer(libvlc_instance_t* vlcInstance, const std::string& mediaPath, bool isUrl = false)
-        : mediaPlayer_(nullptr), playbackSpeed_(1.0) {
+        :mediaPath_(mediaPath), mediaPlayer_(nullptr), playbackSpeed_(1.0) {
         initialize(vlcInstance, mediaPath, isUrl);
         x11Window_ = std::make_unique<X11Window>(mediaPlayer_);
     }
 
     ~MediaPlayer() {
-
         if (playbackTimeThread_.joinable()) {
             playbackTimeThread_.join();
         }
 
         if (mediaPlayer_) {
-
             libvlc_media_player_stop(mediaPlayer_);
             libvlc_media_player_release(mediaPlayer_);
         }
     }
 
     void startPlayback() {
-
         libvlc_media_player_play(mediaPlayer_);
         playbackTimeThread_ = std::thread(playbackTime, mediaPlayer_, std::ref(isRunning_));
     }
 
     void pauseOrResume() {
-
         libvlc_media_player_pause(mediaPlayer_);
     }
 
     void muteOrUnmute() {
-
         bool isMuted = libvlc_audio_get_mute(mediaPlayer_);
         libvlc_audio_set_mute(mediaPlayer_, !isMuted);
     }
 
     void increaseVolume() {
-
         int currentVolume = libvlc_audio_get_volume(mediaPlayer_);
         libvlc_audio_set_volume(mediaPlayer_, currentVolume + 5);
     }
 
     void decreaseVolume() {
-
         int currentVolume = libvlc_audio_get_volume(mediaPlayer_);
         libvlc_audio_set_volume(mediaPlayer_, currentVolume - 5);
     }
 
     void increaseSpeed() {
-
         playbackSpeed_ += 1.5;
         libvlc_media_player_set_rate(mediaPlayer_, playbackSpeed_);
     }
 
     void decreaseSpeed() {
-
         playbackSpeed_ -= 1.5;
         libvlc_media_player_set_rate(mediaPlayer_, playbackSpeed_);
     }
 
     bool isRunning() const {
-
         return isRunning_;
     }
 
     void stop() {
-
         isRunning_ = false;
+    }
+
+    std::string getMediaTitle() const {
+        return mediaPath_;
     }
 
 private:
@@ -176,15 +158,12 @@ private:
         libvlc_media_t* media;
 
         if (isUrl) {
-
             media = libvlc_media_new_location(vlcInstance, mediaPath.c_str());
         } else {
-
             media = libvlc_media_new_path(vlcInstance, mediaPath.c_str());
         }
         
         if (!media) {
-            
             std::cerr << "Failed to create media object!" << std::endl;
             exit(EXIT_FAILURE);
         }
@@ -193,12 +172,12 @@ private:
         libvlc_media_release(media);
         
         if (!mediaPlayer_) {
-
             std::cerr << "Failed to create media player!" << std::endl;
             exit(EXIT_FAILURE);
         }
     }
 
+    std::string mediaPath_;
     libvlc_media_player_t* mediaPlayer_;
     std::unique_ptr<X11Window> x11Window_;
     std::atomic<bool> isRunning_{true};
@@ -206,7 +185,6 @@ private:
     float playbackSpeed_;
 };
 
-// Класс для обработки ввода пользователя
 class UserInputHandler {
 
 public:
@@ -214,7 +192,6 @@ public:
     UserInputHandler(MediaPlayer& mediaPlayer) : mediaPlayer_(mediaPlayer) {
 
         userCommandMap_ = {
-
             {'p', [&mediaPlayer]() { mediaPlayer.pauseOrResume(); }},
             {'m', [&mediaPlayer]() { mediaPlayer.muteOrUnmute(); }},
             {'=', [&mediaPlayer]() { mediaPlayer.increaseVolume(); }},
@@ -231,12 +208,10 @@ public:
         std::cout << "\nMedia is playing..." << std::endl;
         
         while (mediaPlayer_.isRunning()) {
-
             std::cin >> userCommand;
             handleUserCommand(userCommand);
 
             if (userCommand == 'q') {
-
                 std::cout << "\nExiting..." << std::endl;
                 break;
             }
@@ -250,7 +225,6 @@ private:
         auto commandHandler = userCommandMap_.find(userCommand);
         
         if (commandHandler != userCommandMap_.end()) {
-
             commandHandler->second();
         }
     }
@@ -265,17 +239,14 @@ class NonCanonicalMode {
 public:
 
     static void enable() {
-
         setNonCanonicalMode(true);
     }
 
     static void disable() {
-
         setNonCanonicalMode(false);
     }
 };
 
-// Класс для выбора медиа-файла
 class FileBrowser {
 
 public:
@@ -285,7 +256,6 @@ public:
         std::string mediaFilePath = browseFile("/home");
 
         if (mediaFilePath.empty()) {
-
             std::cerr << "No file selected. Exit" << std::endl;
         }
 
@@ -303,26 +273,24 @@ int main(int argc, char *argv[]) {
         std::string mediaPath = FileBrowser::browse();
 
         if (mediaPath.empty()) {
-
             break;
         }
     
-    
         bool isUrl = mediaPath.find("http://") == 0 || mediaPath.find("https://") == 0;
-        
+
         VLCInstance vlcInstance;
         MediaPlayer mediaPlayer(vlcInstance.getInstance(), mediaPath, isUrl);
         UserInputHandler userInputHandler(mediaPlayer);
+
+        std::cout << "Now playing: " << mediaPlayer.getMediaTitle() << std::endl;
 
         mediaPlayer.startPlayback();
         userInputHandler.processUserInput();
 
         if (!mediaPlayer.isRunning()) {
-
             std::cout << "Returning to file browser menu..." << std::endl;
             NonCanonicalMode::enable();
         }
-        
     }
 
     NonCanonicalMode::disable();
