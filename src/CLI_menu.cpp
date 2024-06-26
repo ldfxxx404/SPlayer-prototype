@@ -66,10 +66,12 @@ std::string handleDirectorySelection(const std::string& currentPath, const std::
 }
 
 std::string browseFile(const std::string &initPath) {
+
     initializeNcurses();
 
     std::string currentPath = initPath;
     std::vector<std::pair<std::string, bool>> files = getFiles(currentPath);
+    
     files.insert(files.begin(), {"AnonFM", false});
     
     if (files.empty()) {
@@ -86,36 +88,46 @@ std::string browseFile(const std::string &initPath) {
         displayFiles(currentPath, files, highlight);
 
         choice = getch();
+
         switch (choice) {
+
             case KEY_UP:
                 if (highlight > 0) {
                     --highlight;
                 }
                 break;
+
             case KEY_DOWN:
                 if (highlight < n_choices - 1) {
                     ++highlight;
                 }
                 break;
+
             case 10: 
-                if (highlight == 0){
+                if (highlight == 0) {
+                    
                     finalizeNcurses();
                     return "http://anon.fm:8000/radio";
                 }
                 
                 if (files[highlight].second) { 
+                    
                     currentPath = handleDirectorySelection(currentPath, files[highlight].first);
                     files = getFiles(currentPath);
                     highlight = 0;
                     n_choices = files.size();
+                
                 } else {
+                    
                     finalizeNcurses();
                     return currentPath + "/" + files[highlight].first;
                 }
                 break;
+            
             case 'q':
                 finalizeNcurses();
                 return "";
+                
             default:
                 break;
         }
