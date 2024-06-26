@@ -70,7 +70,8 @@ std::string browseFile(const std::string &initPath) {
 
     std::string currentPath = initPath;
     std::vector<std::pair<std::string, bool>> files = getFiles(currentPath);
-
+    files.insert(files.begin(), {"AnonFM", false});
+    
     if (files.empty()) {
         finalizeNcurses();
         std::cerr << "No files found in the directory." << std::endl;
@@ -97,6 +98,11 @@ std::string browseFile(const std::string &initPath) {
                 }
                 break;
             case 10: 
+                if (highlight == 0){
+                    finalizeNcurses();
+                    return "http://anon.fm:8000/radio";
+                }
+                
                 if (files[highlight].second) { 
                     currentPath = handleDirectorySelection(currentPath, files[highlight].first);
                     files = getFiles(currentPath);

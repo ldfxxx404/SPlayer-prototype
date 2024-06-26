@@ -83,9 +83,9 @@ private:
 // Класс для управления медиа-плеером
 class MediaPlayer {
 public:
-    MediaPlayer(libvlc_instance_t* vlcInstance, const std::string& mediaFilePath)
+    MediaPlayer(libvlc_instance_t* vlcInstance, const std::string& mediaFilePath, bool isUrl = false)
         : mediaPlayer_(nullptr), playbackSpeed_(1.0) {
-        initialize(vlcInstance, mediaFilePath);
+        initialize(vlcInstance, mediaFilePath, isUrl);
         x11Window_ = std::make_unique<X11Window>(mediaPlayer_);
     }
 
@@ -142,8 +142,17 @@ public:
     }
 
 private:
-    void initialize(libvlc_instance_t* vlcInstance, const std::string& mediaFilePath) {
-        libvlc_media_t* media = libvlc_media_new_path(vlcInstance, mediaFilePath.c_str());
+    void initialize(libvlc_instance_t* vlcInstance, const std::string& mediaFilePath, bool isUrl) {
+        libvlc_media_t* media;
+        //= libvlc_media_new_path(vlcInstance, mediaFilePath.c_str());
+
+        if (isUrl)
+        {
+            media = libvlc_media_new_location(vlcInstance, mediaFilePath.c_str());
+        } else {
+            media = libvlc_media_new_path(vlcInstance, mediaFilePath.c_str());
+        }
+        
         if (!media) {
             std::cerr << "Failed to create media object!" << std::endl;
             exit(EXIT_FAILURE);
@@ -234,8 +243,11 @@ int main(int argc, char *argv[]) {
 
     std::string mediaFilePath = FileBrowser::browse();
     if (!mediaFilePath.empty()) {
+        
+        bool isUrl = mediaFilePath.find("http://") == 0 || mediaFilePath.find("https://") == 0;
+        
         VLCInstance vlcInstance;
-        MediaPlayer mediaPlayer(vlcInstance.getInstance(), mediaFilePath);
+        MediaPlayer mediaPlayer(vlcInstance.getInstance(), mediaFilePath, isUrl);
         UserInputHandler userInputHandler(mediaPlayer);
 
         mediaPlayer.startPlayback();
