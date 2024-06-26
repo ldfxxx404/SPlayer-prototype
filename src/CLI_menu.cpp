@@ -91,7 +91,7 @@ std::string browseFile(const std::string &initPath) {
     std::vector<std::pair<std::string, bool>> files = getFiles(currentPath);
     
     files.insert(files.begin(), {"AnonFM", false});
-    
+
     if (files.empty()) {
 
         finalizeNcurses();
@@ -104,7 +104,7 @@ std::string browseFile(const std::string &initPath) {
     int n_choices = files.size();
 
     while (true) {
-        
+
         displayFiles(currentPath, files, highlight);
 
         choice = getch();
@@ -134,6 +134,7 @@ std::string browseFile(const std::string &initPath) {
                     
                     currentPath = handleDirectorySelection(currentPath, files[highlight].first);
                     files = getFiles(currentPath);
+                    files.insert(files.begin(), {"AnonFM", false});
                     highlight = 0;
                     n_choices = files.size();
                 

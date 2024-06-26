@@ -100,9 +100,9 @@ class MediaPlayer {
 
 public:
 
-    MediaPlayer(libvlc_instance_t* vlcInstance, const std::string& mediaFilePath, bool isUrl = false)
+    MediaPlayer(libvlc_instance_t* vlcInstance, const std::string& mediaPath, bool isUrl = false)
         : mediaPlayer_(nullptr), playbackSpeed_(1.0) {
-        initialize(vlcInstance, mediaFilePath, isUrl);
+        initialize(vlcInstance, mediaPath, isUrl);
         x11Window_ = std::make_unique<X11Window>(mediaPlayer_);
     }
 
@@ -172,15 +172,15 @@ public:
 
 private:
 
-    void initialize(libvlc_instance_t* vlcInstance, const std::string& mediaFilePath, bool isUrl) {
+    void initialize(libvlc_instance_t* vlcInstance, const std::string& mediaPath, bool isUrl) {
         libvlc_media_t* media;
 
         if (isUrl) {
 
-            media = libvlc_media_new_location(vlcInstance, mediaFilePath.c_str());
+            media = libvlc_media_new_location(vlcInstance, mediaPath.c_str());
         } else {
 
-            media = libvlc_media_new_path(vlcInstance, mediaFilePath.c_str());
+            media = libvlc_media_new_path(vlcInstance, mediaPath.c_str());
         }
         
         if (!media) {
@@ -286,7 +286,7 @@ public:
 
         if (mediaFilePath.empty()) {
 
-            std::cerr << "No file selected" << std::endl;
+            std::cerr << "No file selected. Exit" << std::endl;
         }
 
         return mediaFilePath;
@@ -295,21 +295,34 @@ public:
 
 // Основная функция программы
 int main(int argc, char *argv[]) {
-    
+
     NonCanonicalMode::enable();
 
-    std::string mediaFilePath = FileBrowser::browse();
+    while (true)
+    {
+        std::string mediaPath = FileBrowser::browse();
 
-    if (!mediaFilePath.empty()) {
-        
-        bool isUrl = mediaFilePath.find("http://") == 0 || mediaFilePath.find("https://") == 0;
+        if (mediaPath.empty()) {
+
+            break;
+        }
+    
+    
+        bool isUrl = mediaPath.find("http://") == 0 || mediaPath.find("https://") == 0;
         
         VLCInstance vlcInstance;
-        MediaPlayer mediaPlayer(vlcInstance.getInstance(), mediaFilePath, isUrl);
+        MediaPlayer mediaPlayer(vlcInstance.getInstance(), mediaPath, isUrl);
         UserInputHandler userInputHandler(mediaPlayer);
 
         mediaPlayer.startPlayback();
         userInputHandler.processUserInput();
+
+        if (!mediaPlayer.isRunning()) {
+
+            std::cout << "Returning to file browser menu..." << std::endl;
+            NonCanonicalMode::enable();
+        }
+        
     }
 
     NonCanonicalMode::disable();
