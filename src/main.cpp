@@ -282,7 +282,7 @@ int main(int argc, char *argv[]) {
         MediaPlayer mediaPlayer(vlcInstance.getInstance(), mediaPath, isUrl);
         UserInputHandler userInputHandler(mediaPlayer);
 
-        std::cout << "Now playing: " << mediaPlayer.getMediaTitle() << std::endl;
+        std::cout << "\nNow playing: " << mediaPlayer.getMediaTitle() << std::endl;
 
         mediaPlayer.startPlayback();
         userInputHandler.processUserInput();
