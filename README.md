@@ -1,6 +1,6 @@
 # ConsoleMediaPlayer
 
-ConsoleMediaPlayer is a CLI-based media player that offers basic playback controls, speed control, and volume adjustment. The functionality is planned to be extended over time, with the addition of more features.
+ConsoleMediaPlayer is a CLI-based media player that provides essential playback controls, speed control, and volume adjustment. The project aims to extend its functionality over time, introducing more features and improving the user experience.
 
 ## Features
 
@@ -9,7 +9,7 @@ ConsoleMediaPlayer is a CLI-based media player that offers basic playback contro
    - Play
    - Pause
    - Mute
-   
+
 2. **Speed Control**:
    - Increase playback speed (X2)
 
@@ -18,8 +18,8 @@ ConsoleMediaPlayer is a CLI-based media player that offers basic playback contro
 
 ### Planned Features:
 - Additional playback controls
-- Enhanced user interface in the CLI
-- More advanced media handling features
+- Enhanced CLI interface
+- Advanced media handling features
 
 ## Screenshots
 
@@ -31,28 +31,27 @@ ConsoleMediaPlayer is a CLI-based media player that offers basic playback contro
 
 ## Building the Project
 
-To build the ConsoleMediaPlayer from source, follow these steps:
-
 ### Prerequisites
-Ensure that the following packages are installed on your system:
+Ensure the following packages are installed on your system:
 - GCC C++ compiler
 - NCurses development libraries
 - VLC development libraries
 - X11 development libraries
 
-Install the required packages on a Debian-based system using:
+Install the required packages on a Debian-based system:
 ```sh
 sudo apt-get install g++ libncurses-dev libvlc-dev libx11-dev
 ```
 
 ### Build Instructions
 
-1. Navigate to the `src` directory:
+1. Clone the repository and navigate to the `src` directory:
     ```sh
-    cd src/
+    git clone <repository_url>
+    cd <repository>/src/
     ```
 
-2. Create a `build` directory:
+2. Create a `build` directory and navigate into it:
     ```sh
     mkdir build
     cd build
@@ -68,8 +67,6 @@ sudo apt-get install g++ libncurses-dev libvlc-dev libx11-dev
     make
     ```
 
-Alternatively, you can use the `install.sh` script for installation:
-
 ### Using the Install Script
 
 1. Navigate to the repository's root directory:
@@ -77,33 +74,32 @@ Alternatively, you can use the `install.sh` script for installation:
     cd <repository>
     ```
 
-2. Run the install script with the desired path to the binary and the folder containing the media files:
+2. Run the install script:
     ```sh
     ./install.sh <path/to/media_folder>
     ```
 
 ## Usage
 
-Once the project is built, you can start the media player using the following command:
+After building the project, start the media player with:
 ```sh
 ./ConsoleMediaPlayer
 ```
 
-This will launch the media player in the terminal, where you can use the provided controls to manage playback, adjust volume, and speed up the playback.
+This will launch the media player in the terminal, where you can control playback, adjust volume, and speed up playback.
 
 ## Requirements
 
-To ensure smooth operation of ConsoleMediaPlayer, the following libraries must be installed:
-- GCC C++ compiler
-- NCurses development libraries
-- VLC development libraries
-- X11 development libraries
-
-Install these dependencies on a Debian-based system with:
+To ensure smooth operation of ConsoleMediaPlayer, install the following libraries:
 ```sh
 sudo apt-get install g++ libncurses-dev libvlc-dev libx11-dev
 ```
 
 ## Future Enhancements
 
-The ConsoleMediaPlayer is under active development, and more features are planned for future releases. Stay tuned for updates!
+ConsoleMediaPlayer is actively developed with more features planned for future releases. Stay tuned for updates!
+
+## Contributing
+
+Contributions are welcome! Feel free to fork the repository, make your changes, and submit a pull request.
+
