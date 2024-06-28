@@ -10,12 +10,9 @@
 #include "playback_time.h"
 
 class VLCInstance {
-
 public:
-
     VLCInstance() {
         instance_ = libvlc_new(0, nullptr);
-
         if (!instance_) {
             std::cerr << "Failed to initialize VLC instance" << std::endl;
             exit(EXIT_FAILURE);
@@ -37,9 +34,7 @@ private:
 };
 
 class X11Window {
-
 public:
-
     X11Window(libvlc_media_player_t* mediaPlayer) : display_(nullptr), window_(0) {
         initialize(mediaPlayer);
     }
@@ -51,7 +46,6 @@ public:
     }
 
 private:
-
     void initialize(libvlc_media_player_t* mediaPlayer) {
         display_ = XOpenDisplay(nullptr);
 
@@ -86,9 +80,7 @@ private:
 };
 
 class MediaPlayer {
-
 public:
-
     MediaPlayer(libvlc_instance_t* vlcInstance, const std::string& mediaPath, bool isUrl = false)
         :mediaPath_(mediaPath), mediaPlayer_(nullptr), playbackSpeed_(1.0) {
         initialize(vlcInstance, mediaPath, isUrl);
@@ -153,7 +145,6 @@ public:
     }
 
 private:
-
     void initialize(libvlc_instance_t* vlcInstance, const std::string& mediaPath, bool isUrl) {
         libvlc_media_t* media;
 
@@ -186,11 +177,8 @@ private:
 };
 
 class UserInputHandler {
-
 public:
-
     UserInputHandler(MediaPlayer& mediaPlayer) : mediaPlayer_(mediaPlayer) {
-
         userCommandMap_ = {
             {'p', [&mediaPlayer]() { mediaPlayer.pauseOrResume(); }},
             {'m', [&mediaPlayer]() { mediaPlayer.muteOrUnmute(); }},
@@ -203,7 +191,6 @@ public:
     }
 
     void processUserInput() {
-
         char userCommand;
         std::cout << "\nMedia is playing..." << std::endl;
         
@@ -233,11 +220,8 @@ private:
     std::map<char, std::function<void()>> userCommandMap_;
 };
 
-// Класс для управления неконаноническим режимом терминала
 class NonCanonicalMode {
-
 public:
-
     static void enable() {
         setNonCanonicalMode(true);
     }
@@ -248,9 +232,7 @@ public:
 };
 
 class FileBrowser {
-
 public:
-
     static std::string browse() {
 
         std::string mediaFilePath = browseFile("/home");
@@ -263,13 +245,9 @@ public:
     }
 };
 
-// Основная функция программы
 int main(int argc, char *argv[]) {
-
     NonCanonicalMode::enable();
-
-    while (true)
-    {
+    while (true) {
         std::string mediaPath = FileBrowser::browse();
 
         if (mediaPath.empty()) {
