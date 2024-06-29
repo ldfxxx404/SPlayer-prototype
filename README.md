@@ -31,18 +31,6 @@ ConsoleMediaPlayer is a CLI-based media player that provides essential playback 
 
 ## Building the Project
 
-### Prerequisites
-Ensure the following packages are installed on your system:
-- GCC C++ compiler
-- NCurses development libraries
-- VLC development libraries
-- X11 development libraries
-
-Install the required packages on a Debian-based system:
-```sh
-sudo apt-get install g++ libncurses-dev libvlc-dev libx11-dev
-```
-
 ### Build Instructions
 
 1. Clone the repository and navigate to the `src` directory:
@@ -92,7 +80,18 @@ This will launch the media player in the terminal, where you can control playbac
 
 To ensure smooth operation of ConsoleMediaPlayer, install the following libraries:
 ```sh
-sudo apt-get install g++ libncurses-dev libvlc-dev libx11-dev
+sudo apt-get install g++ libncurses-dev libvlc-dev libx11-dev make cmake
+
+sudo pacman -S gcc ncurses vlc libx11 make cmake
+
+sudo dnf install gcc-c++ ncurses-devel vlc-devel libX11-devel make cmake
+
+sudo emerge --sync
+sudo emerge -av sys-devel/gcc sys-libs/ncurses media-libs/vlc x11-libs/libX11 sys-devel/make dev-util/cmake
+
+sudo yum update
+sudo yum install epel-release
+sudo yum install gcc-c++ ncurses-devel vlc-devel libX11-devel make cmake
 ```
 
 ## Future Enhancements
