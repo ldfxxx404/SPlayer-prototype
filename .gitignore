@@ -1,6 +1,7 @@
 .vscode
 /bin/
 /mp3/
+/venv/
 TODO.md
 
 **/build/
